@@ -12,15 +12,17 @@ pip install posetree
 
 * All poses are aware of all the frames which allows for powerful operations with simple code.
 * Write pose math designed for humans to read.
+* Think about quaternions as little as possible.
 * Never wonder if you are supposed to pre-multiply or post-multiply, or if you forgot an inverse somewhere.
 * Standalone and easy to integrate into any robotics stack.
 
 ## Basic Usage
 
 ```python
+from scipy.spatial.transform import Rotation
 from posetree import Pose
 
-looking_at = Pose.from_position_and_quaternion([0, 0, 1], [0, 0, 0, 1], "camera", pose_tree)
+looking_at = Pose.from_position_and_rotation([0, 0, 1], Rotation.identity(), "camera", pose_tree)
 
 height = looking_at.in_frame("robot").z
 
