@@ -1,4 +1,4 @@
-# PoseTree
+# posetree
 
 `posetree` is an object-oriented, thread-safe, programmer-first, Python library for dealing with transforms, poses and frames, designed especially for robotics.
 
@@ -34,27 +34,6 @@ x, y, _ = base_target.in_frame("map").position
 theta = base_target.angle_about_z_to(map_origin)
 navigate_to(x, y, theta)
 ```
-## Poses are Immutable
-
-Poses are immutable, and methods like `translate` return a new pose object. Immutability is nice because it makes them safe to pass into methods and also thread safe, but there is a gotcha to watch out for:
-
-```python
-# BAD!!! Do Not Do!
-p1.translate([1,0,0])
-p1.rotate_about_z(np.rad2deg(90))
-p1.with_position_x(5)
-# Surprise! p1 has not changed!
-
-# Better
-p1 = p1.translate([1,0,0])
-p1 = p1.rotate_about_z(np.rad2deg(90))
-p1 = p1.with_position_x(5)
-# We are replacing p1 with the new pose returned, so this works
-
-# My favorite
-p2 = p1.translate([1,0,0]).rotate_about_z(np.rad2deg(90)).with_position_x(5)
-```
-
 
 ## Philosophy of Transforms, Poses and Frames
 
@@ -129,6 +108,27 @@ def grasp_apple(self, apple_pose: Pose):
     # Drop it in the bin.
     self.move_to_pose(drop_pose)
     self.open_gripper()
+```
+
+## Poses are Immutable
+
+Poses are immutable, and methods like `translate` return a new pose object. Immutability is nice because it makes them safe to pass into methods and also thread safe, but there is a gotcha to watch out for:
+
+```python
+# BAD!!! Do Not Do!
+p1.translate([1,0,0])
+p1.rotate_about_z(np.rad2deg(90))
+p1.with_position_x(5)
+# Surprise! p1 has not changed!
+
+# Better
+p1 = p1.translate([1,0,0])
+p1 = p1.rotate_about_z(np.rad2deg(90))
+p1 = p1.with_position_x(5)
+# We are replacing p1 with the new pose returned, so this works
+
+# My favorite
+p2 = p1.translate([1,0,0]).rotate_about_z(np.rad2deg(90)).with_position_x(5)
 ```
 
 ## Immutability and Moving Frames
