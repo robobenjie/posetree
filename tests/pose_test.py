@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from typing import Optional
 from pytest import approx
-from pose import Transform, CustomFramePoseTree, Pose
+from posetree import Transform, CustomFramePoseTree, Pose
 from scipy.spatial.transform import Rotation
 
 class TestPoseTree(CustomFramePoseTree):

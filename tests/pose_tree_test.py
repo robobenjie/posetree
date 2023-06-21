@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from pose import Transform, CustomFramePoseTree, Pose
+from posetree import Transform, CustomFramePoseTree, Pose
 from scipy.spatial.transform import Rotation
 
 class TestPoseTree(CustomFramePoseTree):

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 from pytest import approx
-from pose import Transform
+from posetree import Transform
 from scipy.spatial.transform import Rotation
 
 
