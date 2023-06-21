@@ -1,6 +1,6 @@
 # PoseTree
 
-PoseTree is an object-oriented, thread-safe, programmer-first, Python library for dealing with transforms, poses and frames, designed especially for robotics.
+`posetree` is an object-oriented, thread-safe, programmer-first, Python library for dealing with transforms, poses and frames, designed especially for robotics.
 
 ## Installation
 
