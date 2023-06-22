@@ -21,9 +21,13 @@ pip install posetree
 from scipy.spatial.transform import Rotation
 from posetree import Pose
 
-looking_at = Pose.from_position_and_rotation([0, 0, 1], Rotation.identity(), "camera", pose_tree)
-
-height = looking_at.in_frame("robot").z
+pose_of_tea_bottle = Pose.from_position_and_rotation(
+    [-0.3, 0.4, 1.2],
+    Rotation.identity(),
+    parent_frame="camera",
+    pose_tree=pose_tree)
+height_of_tea = pose_of_tea_bottle.in_frame("world").z
+distance_from_gripper = pose_of_tea_bottle.distance_to(gripper_pose)
 
 base_target = base_pose.translate([2, 0, 0]).rotate_about_z(np.pi/4)
 
