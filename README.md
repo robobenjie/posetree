@@ -23,10 +23,10 @@ from posetree import Pose
 
 # Create a pose from perception information
 pose_of_tea_bottle = Pose.from_position_and_rotation(
-    [-0.3, 0.4, 1.2],
-    Rotation.identity(),
-    parent_frame="camera",
-    pose_tree=pose_tree)
+    [-0.3, 0.4, 1.2], # Position of the bottle
+    Rotation.identity(), # Rotation of the bottle
+    parent_frame="camera", # Parent frame for position and rotation.
+    pose_tree=pose_tree) # PoseTree object to track frame relationships over time.
 
 # Calculate things based on other frames
 height_of_tea = pose_of_tea_bottle.in_frame("world").z
