@@ -1,6 +1,6 @@
 # posetree
 
-`posetree` is an object-oriented, thread-safe, programmer-first, Python library for dealing with transforms, poses and frames, designed especially for robotics.
+`posetree` is an object-oriented, thread-safe, programmer-first, Python library for dealing with transforms, poses and frames, designed especially for robotics. It is unique in that Poses know their parent frame and it's relationship to other frames which allows for powerful operations with simple code.
 
 ## Installation
 
@@ -10,11 +10,10 @@ pip install posetree
 
 ## Features
 
-* All poses are aware of all the frames which allows for powerful operations with simple code.
 * Write pose math designed for humans to read.
 * Think about quaternions as little as possible.
 * Never wonder if you are supposed to pre-multiply or post-multiply, or if you forgot an inverse somewhere.
-* Standalone and easy to integrate into any robotics stack.
+* Standalone, and easy to integrate into any robotics stack (works with ROS but does not depend on it).
 
 ## Basic Usage
 
