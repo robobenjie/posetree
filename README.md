@@ -53,15 +53,14 @@ Notice we can take our example pose (standing at my front door facing the street
     - Example: We could name “Standing at my front door facing the street” “journey_start” and then we could describe that other pose by saying, “from journey_start take 10 steps forward and turn 90 degrees to your left”
     - Example: We could name the left camera pose `"camera"`.
 
-You can sequence Transforms by multiplying them together, (as is traditional). This has a semantic meaning: "do this operation and then this other operation." However you cannot sequentially apply positions in 3D space so there is no multiply operator for Pose.
+You can sequence Transforms (by multiplying them together, as is traditional). This has a semantic meaning: "do this operation and then this other operation." However you cannot sequentially apply positions in 3D space so there is intentionally no multiply operator for Pose. As you use this library you will find that nearly every operation is easier and more clearly expressed via `in_frame`, `translate` or `rotate` operations instead of chains of `(world_t_robot * robot_t_camera * camera_t_object).inverse()` that you might be used to.
 
 ## Anchoring Poses in Frames.
 
 When constucting poses it is useful to think of what you expect the pose to be fixed relative to. For example, you might
-detect an apple on a table and get a pose from your perception system in the `camera` frame, but the apple is fixed relative to the table, so you will
-want to store your pose object with a the parent frame equal to `odometry/map/world`. Then, even if the robot moves, `apple_pose` will still refer to the
-best estimation of the apple's true location (with the usual caviats about localization drift and noise).
+detect an apple on a table and get a pose from your perception system in the `camera` frame, but the apple is actually sitting on the table, and we don't expect the apple to move if the camera moves. So you will want to store your pose object with a the parent frame equal to `odometry/map/world`. Then, even if the robot drives around, `apple_pose` will still refer to the best estimation of the apple's true location (with the usual caviats about localization drift and noise).
 
+Here's how to express that in `posetree`.
 ```python
 apple_pose = Pose(camera_t_apple, "camera", pose_tree).in_frame("world")
 ```
@@ -78,11 +77,8 @@ When designing motion APIs with this library, you should be liberal in what fram
 For example, in a function to move the arm to a pose:
 ```python
 def move_to_pose(self, target_pose: Pose):
-    # Convert the target to be relative to the base of the robot so we can execute the motion.
-    target_pose = target_pose.in_frame("robot")
-
     # Best Practice: turn Poses into Transforms at the last moment before acting on them.
-    arm_motion_primitives.move_arm_to_pose_relative_to_base(target_pose.transform)
+    arm_motion_primitives.move_arm_to_pose_relative_to_base(target_pose.in_frame("robot").transform)
 ```
 
 This formulation lets you combine the perception outputs and the motion methods for things like this:
@@ -97,7 +93,8 @@ def grasp_apple(self, apple_pose: Pose):
     self.move_to_pose_until_contact(pregrasp.translate([0, 0, 0.2]))
 
     # If we feel a contact too early, raise some reasonable error:
-    # We can check the distance using distance_to, even though the frames are different.
+    # We can check the distance using distance_to, even though the parent frames 
+    # of the two poses are different.
     if apple_pose.distance_to(get_tool_pose()) > 0.1:
         return "Whoops, we probably didn't get the apple."
 
@@ -112,7 +109,7 @@ def grasp_apple(self, apple_pose: Pose):
 
 ## Poses are Immutable
 
-Poses are immutable, and methods like `translate` return a new pose object. Immutability is nice because it makes them safe to pass into methods and also thread safe, but there is a gotcha to watch out for:
+Poses are immutable, and methods like `translate` return a new pose object. Immutability is nice because it makes them safe to pass into methods and also makes them thread safe, but there is a gotcha to watch out for:
 
 ```python
 # BAD!!! Do Not Do!
@@ -134,14 +131,14 @@ p2 = p1.translate([1,0,0]).rotate_about_z(np.rad2deg(90)).with_position_x(5)
 ## Immutability and Moving Frames
 
 While a Pose is immutable, the parent frame can (and does!) change over time relative to other frames, meaning that an individual pose can move relative
-to other frames. (For example a pose defined in the "robot" frame will conceptually move as the robot moves relative to a 'world'
+to other frames. (For example a pose defined in the `robot` frame will conceptually move as the robot moves relative to a `world`
 frame, even though its position and orientation remain immutably constant.)
 
 To make this very concrete, say the robot starts out at the world origin:
 
 ```python
-pose_in_robot_frame = pose.from_position_and_rotation([1,2,3], Rotation.identity(), "robot", pose_tree)
-pose_in_world_frame = pose_in_robot_frame.in_frame("world")
+pose_in_robot_frame = pose.from_position_and_rotation([1,2,3], Rotation.identity(), "robot", pose_tree) # fixed to robot
+pose_in_world_frame = pose_in_robot_frame.in_frame("world") # fixed to world
 
 pose_in_robot_frame.position # [1,2,3]
 pose_in_world_frame.position # [1,2,3]
@@ -149,17 +146,20 @@ pose_in_world_frame.position # [1,2,3]
 # Now the robot moves 1 meter forward in the world frame.
 robot.drive_forward_in_x(1)
 
-# Poses are immutable so this has not changed. One pose is [1,2,3] from the robot frame origin, one is [1,2,3] from the world origin.
+# Poses are immutable so they have not changed. One pose is [1,2,3] from the robot
+# frame origin, one is [1,2,3] from the world origin.
 pose_in_robot_frame.position # [1,2,3]
 pose_in_world_frame.position # [2,2,3]
 
-# But if we express the one in robot frame in the world frame, we see that it is now 1 meter forward in x.
+# But if we express the one in robot frame in the world frame, we see that it 
+# is now 1 meter farther forward in x (because it was glued to the robot as 
+# it moved relative to the world.)
 pose_in_robot_frame.in_frame("world").position # [2,2,3]
 ```
 
 ## Connecting it to the rest of your stack.
 
-To connect a pose_tree instance you need to subclass PoseTree. Lets say you have an (fictional) object called `MyTransformManager` in your stack that subscribes to pose messages and implements `get_transform`. You would write something like:
+To connect a pose_tree instance you need to subclass PoseTree. Lets say your stack uses a (fictional) object called `MyTransformManager` that subscribes to pose messages and implements `get_transform` that returns some flavor of transform struct. You would write something like:
 
 ```python
 class MyPoseTree(CustomFramePoseTree):
@@ -196,4 +196,4 @@ We welcome contributions! This is my first open source project so I don't know w
 
 ## License
 
-PoseTree is licensed under the [MIT license](https://github.com/robobenjie/posetree/blob/main/LICENSE).
+posetree is licensed under the [MIT license](https://github.com/robobenjie/posetree/blob/main/LICENSE).
