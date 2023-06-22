@@ -173,7 +173,7 @@ class MyPoseTree(CustomFramePoseTree):
     """My implementation of PoseTree to integrate with MyTransformManager"""
 
     def __init__(self, transform_manager: MyTransfrormManager):
-        self._tfm = transformManager
+        self._tfm = transform_manager
 
     def _get_transform(self, parent_frame: str, child_frame: str, timestamp: Optional[float] = None) -> Transform:
         transform_data = self._tfm.get_transform(parent_frame, child_frame, timestamp)
