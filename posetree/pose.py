@@ -27,82 +27,6 @@ class Pose(object):
     to other frames. (For example a pose defined in the "robot" frame will conceptually move as the robot moves relative to a 'world'
     frame, even though its position and orientation remain immutably constant.)
 
-    To make this very concrete, say the robot starts out at the world origin:
-
-    ```python
-    pose_in_robot_frame = pose.from_position_and_rotation([1,2,3], Rotation.identity(), "robot", pose_tree)
-    pose_in_world_frame = pose_in_robot_frame.in_frame("world")
-
-    pose_in_robot_frame.position # [1,2,3]
-    pose_in_world_frame.position # [1,2,3]
-
-    # Now the robot moves 1 meter forward in the world frame.
-    robot.drive_forward_in_x(1)
-
-    # Poses are immutable so this has not changed. One pose is [1,2,3] from the robot frame origin, one is [1,2,3] from the world origin.
-    pose_in_robot_frame.position # [1,2,3]
-    pose_in_world_frame.position # [2,2,3]
-
-    # But if we express the one in robot frame in the world frame, we see that it is now 1 meter forward in x.
-    pose_in_robot_frame.in_frame("world").position # [2,2,3]
-
-    ```
-    Of course, the above example assumes that the `pose_tree` is correctly hooked up to the robot odometry system, so the poses know that the frames 
-    have moved.
-
-    When constucting poses it is useful to think of what you expect the pose to be fixed relative to. For example, you might
-    detect an apple on a table and get a pose from your perception system in the `camera` frame, but the apple is fixed relative to the table, so you will
-    want to store your pose object with a the parent frame equal to `odometry/map/world`. Then, even if the robot moves, apple_pose will still refer to the
-    best estimation of the apple's true location (with the usual caviats about localization drift and noise).
-
-    ```
-    apple_pose = Pose(camera_t_apple, "camera", pose_tree).in_frame("world")
-    ```
-
-    Likewise if you have a bin on the back of a mobile robot and you want to define a drop-objects-into-bin pose right above it you can store
-    that in the `robot` frame.
-
-    ```
-    drop_pose = Pose.from_position_and_quaternion([-.3, 0.1, 0.25], [0, 0, 0, 1]), "robot", pose_tree)
-    ```
-
-    When designing motion APIs with this library, you should be liberal in what frames you accept, and internally convert them to the frame you want to work in. 
-
-    For example, in a function to move the arm to a pose:
-    ```
-    def move_to_pose(self, target_pose: Pose):
-        # Convert the target to be relative to the base of the robot so we can execute the motion.
-        target_pose = target_pose.in_frame("robot")
-
-        # Best Practice: turn Poses into Transforms at the last moment before acting on them.
-        arm_motion_primitives.move_arm_to_pose_relative_to_base(target_pose.transform)
-    ```
-
-    This formulation lets you combine the perception outputs and the motion methods for things like this:
-
-    ```
-    def grasp_apple(self, apple_pose: Pose):
-        # pregrasp is a pose 15 cm above the apple, with z pointing at it.
-        pregrasp = apple_pose.translate([0, 0, 0.15], frame="world").point_z_at(apple_pose)
-        self.move_to_pose(pregrasp)
-
-        # Move down in the local 'z' of pregrasp until we touch the apple.
-        self.move_to_pose_until_contact(pregrasp.translate([0, 0, 0.2]))
-
-        # If we feel a contact too early, raise some reasonable error:
-        # We can check the distance using distance_to, even though the frames are different.
-        if apple_pose.distance_to(get_tool_pose()) > 0.1:
-            return "Whoops, we probably didn't get the apple."
-
-        # Close the gripper and move up a bit from where ever we are, to lift the apple.
-        self.close_gripper()
-        self.move_to_pose(get_tool_pose().translate([0, 0, -0.1]))
-
-        # Drop it in the bin.
-        self.move_to_pose(drop_pose)
-        self.open_gripper()
-    ```
-
     """
     def __init__(self, transform: "Transform", parent_frame: str, pose_tree: "PoseTree") -> None:
         """Create a pose from a transform, frame, and pose tree.
@@ -543,7 +467,7 @@ class Pose(object):
         return self._angle_about_axis_to(target, [0, 0, 1])
 
 
-    def _point_at(self, target: "Pose", axis: Sequence[float], fixed_axis: str=None)  -> "Pose":
+    def _point_at(self, target: "Pose", axis: Sequence[float], fixed_axis: str=None) -> "Pose":
         """Return a new pose rotated to point at a target pose.
         
         Args:
