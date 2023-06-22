@@ -21,18 +21,22 @@ pip install posetree
 from scipy.spatial.transform import Rotation
 from posetree import Pose
 
+# Create a pose from perception information
 pose_of_tea_bottle = Pose.from_position_and_rotation(
     [-0.3, 0.4, 1.2],
     Rotation.identity(),
     parent_frame="camera",
     pose_tree=pose_tree)
+
+# Calculate things based on other frames
 height_of_tea = pose_of_tea_bottle.in_frame("world").z
 distance_from_gripper = pose_of_tea_bottle.distance_to(gripper_pose)
 
+# Calculate some base motion targets relative to the current robot pose
 base_target = base_pose.translate([2, 0, 0]).rotate_about_z(np.pi/4)
-
 base_target2 = base_pose.point_x_at(human_pose).translate([1, 0, 0])
 
+# Get numbers out of a pose to send to a motion API
 x, y, _ = base_target.in_frame("map").position
 theta = base_target.angle_about_z_to(map_origin)
 navigate_to(x, y, theta)
@@ -56,7 +60,7 @@ Notice we can take our example pose (standing at my front door facing the street
     - Example: We could name “Standing at my front door facing the street” “journey_start” and then we could describe that other pose by saying, “from journey_start take 10 steps forward and turn 90 degrees to your left”
     - Example: We could name the left camera pose `"camera"`.
 
-You can sequence Transforms (by multiplying them together, as is traditional). This has a semantic meaning: "do this operation and then this other operation." However you cannot sequentially apply positions in 3D space so there is intentionally no multiply operator for Pose. As you use this library you will find that nearly every operation is easier and more clearly expressed via `in_frame`, `translate` or `rotate` operations instead of chains of `(world_t_robot * robot_t_camera * camera_t_object).inverse()` that you might be used to.
+You can sequence Transforms (by multiplying them together, as is traditional). This has a semantic meaning: i.e. "take 10 steps foreard and turn left THEN take 1 step backwards and turn around" which is equivalent to "take 10 steps forward and sidestep once right and then turn right". However you cannot sequentially apply positions in 3D space so there is intentionally no multiply operator for Pose. If this seems strange, I promise that as you use this library you will find that nearly every operation is easier and more clearly expressed via `in_frame`, `translate` or `rotate` operations instead of chains of `(world_t_robot * robot_t_camera * camera_t_object).inverse()` that you might be used to.
 
 ## Anchoring Poses in Frames.
 
