@@ -156,7 +156,7 @@ robot.drive_forward_in_x(1)
 # Poses are immutable so they have not changed. One pose is [1,2,3] from the robot
 # frame origin, one is [1,2,3] from the world origin.
 pose_in_robot_frame.position # [1,2,3]
-pose_in_world_frame.position # [2,2,3]
+pose_in_world_frame.position # [1,2,3]
 
 # But if we express the one in robot frame in the world frame, we see that it 
 # is now 1 meter farther forward in x (because it was glued to the robot as 
