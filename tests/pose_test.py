@@ -361,6 +361,25 @@ def test_rotate_about_z():
     expected_rotation = Rotation.from_euler('z', np.pi/2)
     assert_rotations_equal(new_pose.rotation, expected_rotation)
 
+def test_rotate_about_axis_degrees():
+    pose_tree = get_pose_tree()
+    pose = pose_tree.get_pose([1, 2, 3], [0, 0, 0, 1], 'robot')
+    
+    # Rotate 90 degrees about z-axis
+    new_pose_z = pose.rotate_about_z(90, degrees=True)
+    new_pose_y = pose.rotate_about_y(90, degrees=True)
+    new_pose_x = pose.rotate_about_x(90, degrees=True)
+    
+    # Check position - should remain the same
+    assert new_pose_z.position == pytest.approx(np.array([1, 2, 3]))
+    assert new_pose_y.position == pytest.approx(np.array([1, 2, 3]))
+    assert new_pose_x.position == pytest.approx(np.array([1, 2, 3]))
+    
+    # Check rotation - should be 90 degrees about z-axis
+    for p, axis in zip([new_pose_z, new_pose_y, new_pose_x], ['z', 'y', 'x']):
+        expected_rotation = Rotation.from_euler(axis, np.pi/2)
+        assert_rotations_equal(p.rotation, expected_rotation)
+
 def test_rotate_about_axis_raises_on_non_unit_axis():
     pose_tree = get_pose_tree()
     pose = pose_tree.get_pose([1, 2, 3], [0, 0, 0, 1], 'robot')

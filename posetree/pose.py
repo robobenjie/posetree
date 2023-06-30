@@ -265,7 +265,7 @@ class Pose(object):
             self_frame_t_frame = self.pose_tree.get_transform(self.frame, frame)
             return Pose(Transform(self.position + self_frame_t_frame.rotation.apply(translation), self.rotation), self.frame, self.pose_tree)
     
-    def rotate_about_axis(self, axis: Sequence[float], angle: float, *, frame: Optional[str]=None) -> "Pose":
+    def rotate_about_axis(self, axis: Sequence[float], angle: float, *, degrees: bool = False, frame: Optional[str]=None) -> "Pose":
         """Return a new pose rotated about an axis.
 
         This is rotated in the basis of the pose being rotated (i.e body-fixed) rather than the parent frame, and it only
@@ -275,12 +275,15 @@ class Pose(object):
         
         Args:
             axis: The axis to rotate about.
-            angle: The angle to rotate by, in radians.
+            angle: The angle to rotate by, in radians unless degrees=True.
+            degrees: Whether the angle is in degrees.
             frame: The frame that the axis is relative to. If None, the axis is interpreted in the basis vectors of the pose (not the parent frame).
         
         Returns:
             A new pose with the same location but rotated about an axis.
         """
+        if degrees:
+            angle = np.deg2rad(angle)
         axis = np.array(axis)
         if (np.inner(axis, axis) - 1) > 1e-6:
             raise ValueError("Axis must be a unit vector.")
@@ -291,41 +294,44 @@ class Pose(object):
             new_rotation = Rotation.from_rotvec(frame_t_self_frame.rotation.apply(axis) * angle) * self.rotation
         return Pose(Transform(self.position, new_rotation), self.frame, self.pose_tree)
     
-    def rotate_about_x(self, angle: float, *, frame: Optional[str]=None) -> "Pose":
+    def rotate_about_x(self, angle: float, *, degrees: bool = False, frame: Optional[str]=None) -> "Pose":
         """Return a new pose rotated about the x axis.
         
         Args:
-            angle: The angle to rotate by, in radians.
+            angle: The angle to rotate by, in radians unless degrees=True.
+            degrees: Whether the angle is in degrees.
             frame: The frame that the axis is relative to. If not provided, it will rotate about the x-unit-vector of the pose being rotated.
         
         Returns:
             A new pose with the same location but rotated about the x axis.
         """
-        return self.rotate_about_axis([1, 0, 0], angle, frame=frame)
+        return self.rotate_about_axis([1, 0, 0], angle, degrees=degrees, frame=frame)
     
-    def rotate_about_y(self, angle: float, *, frame: Optional[str]=None) -> "Pose":
+    def rotate_about_y(self, angle: float, *, degrees: bool = False, frame: Optional[str]=None) -> "Pose":
         """Return a new pose rotated about the y axis.
         
         Args:
-            angle: The angle to rotate by, in radians.
+            angle: The angle to rotate by, in radians unless degrees=True.
+            degrees: Whether the angle is in degrees.
             frame: The frame that the axis is relative to. If not provided, it will rotate about the y-unit-vector of the pose being rotated.
         
         Returns:
             A new pose with the same location but rotated about the y axis.
         """
-        return self.rotate_about_axis([0, 1, 0], angle, frame=frame)
+        return self.rotate_about_axis([0, 1, 0], angle, degrees=degrees, frame=frame)
     
-    def rotate_about_z(self, angle: float, *, frame: Optional[str]=None) -> "Pose":
+    def rotate_about_z(self, angle: float, *, degrees: bool = False, frame: Optional[str]=None) -> "Pose":
         """Return a new pose rotated about the z axis.
         
         Args:
-            angle: The angle to rotate by, in radians.
+            angle: The angle to rotate by, in radians unless degrees=True.
+            degrees: Whether the angle is in degrees.
             frame: The frame that the axis is relative to. If not provided, it will rotate about the z-unit-vector of the pose being rotated.
         
         Returns:
             A new pose with the same location but rotated about the z axis.
         """
-        return self.rotate_about_axis([0, 0, 1], angle, frame=frame)
+        return self.rotate_about_axis([0, 0, 1], angle, degrees=degrees, frame=frame)
     
     def point_x_at(self, target: "Pose", fixed_axis: str = None) -> "Pose":
         """Return a new pose rotated to point the x axis at a target pose.
