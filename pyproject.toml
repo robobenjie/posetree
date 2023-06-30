@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+
+[project]
+name = "posetree"
+version = "1.1.0"
+description = "A Python library doing pose math for robotics."
+readme = "README.md"
+authors = [{name = "Benjie Holson", email = "bmholson@gmail.com"}]
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3"
+]   
+
+dependencies = [
+    "numpy>=1.21.2",
+    "scipy>=1.7.1"
+]
+
+[project.urls]
+homepage = "https://github.com/robobenjie/posetree"
+documentation = "https://htmlpreview.github.io/?https://raw.githubusercontent.com/robobenjie/posetree/main/docs/posetree/pose.html"
+repository = "https://github.com/robobenjie/posetree"
+changelog = "https://github.com/robobenjie/posetree/releases"
+
