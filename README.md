@@ -166,6 +166,11 @@ pose_in_robot_frame.in_frame("world").position # [2,2,3]
 
 ## Connecting it to the rest of your stack.
 
+### ROS2
+If you use ROS2, you can use this excellent adapter library by Brennand Pierce to connect to other modules and visualize poses. https://github.com/brennand/ros_posetree.
+
+### Other Stacks
+
 To connect a pose_tree instance you need to subclass PoseTree. Lets say your stack uses a (fictional) object called `MyTransformManager` that subscribes to pose messages and implements `get_transform` that returns some flavor of transform struct. You would write something like:
 
 ```python
@@ -199,7 +204,7 @@ For more detailed information about the API and how to use PoseTree, check out t
 
 ## Contributing
 
-We welcome contributions! This is my first open source project so I don't know what I'm doing, but I'd especially like it if folks wanted to create PoseTree object implementations to wrap tf2 nicely for ROS and ROS2.
+We welcome contributions! This is my first open source project so I don't know what I'm doing, but I'm excited to help you figure out how to incorporate it into your projects.
 
 ## License
 
