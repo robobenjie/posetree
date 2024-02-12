@@ -618,11 +618,9 @@ def test_interpolate():
     # Create two pose objects
     t1 = Transform(position=np.array([0, 0, 0]), rotation=Rotation.from_quat([0, 0, 0, 1]))
     p1 = Pose(t1, 'world', pose_tree)
-    pose_tree.add_frame(p1, 'p1')
 
     t2 = Transform(position=np.array([1, 1, 1]), rotation=Rotation.from_quat([0, 1, 0, 0]))
     p2 = Pose(t2, 'world', pose_tree)
-    pose_tree.add_frame(p2, 'p2')
 
     # Interpolate between the transforms at alpha=0.0 (should equal t1)
     p_interpolated = p1.interpolate(p2, 0.0)

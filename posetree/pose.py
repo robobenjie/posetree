@@ -172,6 +172,17 @@ class Pose(object):
         new_transform = Transform(self.position, rotation)
         return Pose(new_transform, self.frame, self.pose_tree)
     
+    def with_transform(self, transform: "Transform") -> "Pose":
+        """Return a new pose with a different transform from the origin.
+        
+        Args:
+            transform: The new transform of the pose.
+        
+        Returns:
+            A new pose with a different transform.
+        """
+        return Pose(transform, self.frame, self.pose_tree)
+    
     def with_rotation_matching(self, other: "Pose") -> "Pose":
         """Return a new pose with the same position but a different orientation, matching another pose.
 
