@@ -1,6 +1,6 @@
 # posetree
 
-`posetree` is an object-oriented, thread-safe, programmer-first, Python library for dealing with transforms, poses and frames, designed especially for robotics. It is unique in that Poses know their parent frame and it's relationship to other frames which allows for powerful operations with simple code.
+`posetree` is an object-oriented, thread-safe, programmer-first, Python library for dealing with transforms, poses and frames, designed especially for robotics. It is unique in that Poses know their parent frame and its relationship to other frames which allows for powerful operations with simple code.
 
 ## Installation
 
@@ -60,12 +60,12 @@ Notice we can take our example pose (standing at my front door facing the street
     - Example: We could name “Standing at my front door facing the street” “journey_start” and then we could describe that other pose by saying, “from journey_start take 10 steps forward and turn 90 degrees to your left”
     - Example: We could name the left camera pose `"camera"`.
 
-You can sequence Transforms (by multiplying them together, as is traditional). This has a semantic meaning: i.e. "take 10 steps foreard and turn left THEN take 1 step backwards and turn around" which is equivalent to "take 10 steps forward and sidestep once right and then turn right". However you cannot sequentially apply positions in 3D space so there is intentionally no multiply operator for Pose. If this seems strange, I promise that as you use this library you will find that nearly every operation is easier and more clearly expressed via `in_frame`, `translate` or `rotate` operations instead of chains of `(world_t_robot * robot_t_camera * camera_t_object).inverse()` that you might be used to.
+You can sequence Transforms (by multiplying them together, as is traditional). This has a semantic meaning: e.g. "take 10 steps forward and turn left THEN take 1 step backwards and turn around" which is equivalent to "take 10 steps forward and sidestep once right and then turn right". However you cannot sequentially apply positions in 3D space so there is intentionally no multiply operator for Pose. If this seems strange, I promise that as you use this library you will find that nearly every operation is easier and more clearly expressed via `in_frame`, `translate` or `rotate` operations instead of chains of `(world_t_robot * robot_t_camera * camera_t_object).inverse()` that you might be used to.
 
 ## Anchoring Poses in Frames.
 
 When constucting poses it is useful to think of what you expect the pose to be fixed relative to. For example, you might
-detect an apple on a table and get a pose from your perception system in the `camera` frame, but the apple is actually sitting on the table, and we don't expect the apple to move if the camera moves. So you will want to store your pose object with a the parent frame equal to `odometry/map/world`. Then, even if the robot drives around, `apple_pose` will still refer to the best estimation of the apple's true location (with the usual caviats about localization drift and noise).
+detect an apple on a table and get a pose from your perception system in the `camera` frame, but the apple is actually sitting on the table, and we don't expect the apple to move if the camera moves. So you will want to store your pose object with the parent frame equal to `odometry/map/world`. Then, even if the robot drives around, `apple_pose` will still refer to the best estimation of the apple's true location (with the usual caveats about localization drift and noise).
 
 Here's how to express that in `posetree`.
 ```python
