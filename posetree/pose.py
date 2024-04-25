@@ -136,7 +136,18 @@ class Pose(object):
         """
         new_transform = self.pose_tree.get_transform(parent_frame, self.frame, timestamp) * self.transform
         return Pose(new_transform, parent_frame, self.pose_tree)
-    
+
+    def with_transform(self, transform: "Transform") -> "Pose":
+        """Return a new pose with a different transform but the same frame.
+
+        Args:
+            transform: The new transform of the pose.
+
+        Returns:
+            A new pose with a different transform but the same frame.
+        """
+        return Pose(transform, self.frame, self.pose_tree)
+
     def with_position(self, position: Sequence[float]) -> "Pose":
         """Return a new pose with the same rotation but a different location relative to the parent frame.
         
