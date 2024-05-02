@@ -612,4 +612,28 @@ def test_point_at_with_fixed_axis_non_aligned_non_identity_start():
             new_alignment = test_pose.x_axis.dot([0, 1, 0])
             assert new_alignment < initial_alignment
 
-    
+def test_interpolate():
+    pose_tree = get_pose_tree()
+
+    # Create two pose objects
+    t1 = Transform(position=np.array([0, 0, 0]), rotation=Rotation.from_quat([0, 0, 0, 1]))
+    p1 = Pose(t1, 'world', pose_tree)
+    pose_tree.add_frame(p1, 'p1')
+
+    t2 = Transform(position=np.array([1, 1, 1]), rotation=Rotation.from_quat([0, 1, 0, 0]))
+    p2 = Pose(t2, 'world', pose_tree)
+    pose_tree.add_frame(p2, 'p2')
+
+    # Interpolate between the transforms at alpha=0.0 (should equal t1)
+    p_interpolated = p1.interpolate(p2, 0.0)
+    assert p_interpolated.transform.almost_equal(p1.transform)
+
+    # Interpolate between the transforms at alpha=1.0 (should equal t2)
+    p_interpolated = p1.interpolate(p2, 1.0)
+    assert p_interpolated.transform.almost_equal(p2.transform)
+
+    # Interpolate between the transforms at alpha=0.5 (should be midway between t1 and t2)
+    p_interpolated = p1.interpolate(p2, 0.5)
+    expected_position = np.array([0.5, 0.5, 0.5])  # Midway between t1.position and t2.position
+    assert np.allclose(p_interpolated.position, expected_position)
+    assert p1.angle_to(p_interpolated) == approx(p2.angle_to(p_interpolated))  # Interpolated rotation should be halfway between t1.rotation and t2.rotation
