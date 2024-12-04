@@ -813,21 +813,27 @@ class Transform(object):
         
     __mul__ = apply
         
-    def almost_equal(self, other: "Transform", atol: float=1e-8) -> bool:
+    def almost_equal(self, other: "Transform", atol: float = 1e-8) -> bool:
         """Check if two transforms are almost equal.
-        
+
         Handles floating point error in the position and rotation, and the fact that for quaternions negating 
         the vector gives the same rotation.
         """
-        # Check if positions are almost equal.
-        if not np.allclose(self._position, other._position, atol=atol):
+        # Check if positions are almost equal using the norm.
+        position_diff = self._position - other._position
+        position_diff_norm_squared = position_diff[0]**2 + position_diff[1]**2 + position_diff[2]**2
+        if position_diff_norm_squared > atol**2:
             return False
-        # Check if rotations are almost equal.
-        # Since quaternion [x, y, z, w] represents the same rotation as [-x, -y, -z, -w], we also need to check the inverse quaternion.
-        if not (np.allclose(self._rotation.as_quat(), other._rotation.as_quat(), atol=atol)
-                or np.allclose(self._rotation.as_quat(), -other._rotation.as_quat(), atol=atol)):
+
+        # Check if rotations are almost equal using the absolute dot product.
+        q1 = self._rotation.as_quat()
+        q2 = other._rotation.as_quat()
+        dot_product = abs(q1[0] * q2[0] + q1[1] * q2[1] + q1[2] * q2[2] + q1[3] * q2[3])
+        if dot_product < 1 - atol:
             return False
+
         return True
+
     
     def interpolate(self, other: "Transform", alpha: float) -> "Transform":
         """Interpolate between two transforms.
